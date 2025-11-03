@@ -29,7 +29,6 @@ public record User(
         Instants instants,
         @Column(unique = true, nullable = false)
         UUID uuid,
-        @Column(nullable = false)
         byte[] publicKey,
         @Column(nullable = false)
         String name,

@@ -37,8 +37,9 @@ public class UserController {
     @PostMapping(value = "/nonce", consumes = "application/json")
     public CompletableFuture<NonceResponse> nonce(@RequestBody NonceRequest req)
             throws BadRequestException {
-        var ex = Example.of(User.fromUuid(req.uuid));
-        var user = _userRepository.findOne(ex).orElseThrow(Errors.BadRequest);
+        final var u = Example.of(User.fromUuid(req.uuid));
+        final var user = _userRepository.findOne(u)
+                .orElseThrow(Errors.BadRequest);
         return CompletableFuture.completedFuture(new NonceResponse(user.nonce()));
     }
 }
