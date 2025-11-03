@@ -1,4 +1,4 @@
-package com.mini.pasuki.config;
+package com.mini.pasuki.configs;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

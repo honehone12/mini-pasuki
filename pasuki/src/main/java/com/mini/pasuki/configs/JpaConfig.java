@@ -1,4 +1,4 @@
-package com.mini.pasuki.config;
+package com.mini.pasuki.configs;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
