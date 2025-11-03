@@ -1,6 +1,6 @@
-package mini.pasuki;
+package com.mini.pasuki.models;
 
-import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLRestriction;
@@ -8,21 +8,20 @@ import org.hibernate.annotations.SQLRestriction;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
 @SQLRestriction("deleted_at IS NULL")
 @Table(indexes = {
-    @Index(name = "idx_post_uuid", unique = true, columnList = "uuid")
-})
-public record Session(
+    @Index(name = "idx_user_uuid", unique = true, columnList = "uuid"),
+    @Index(name = "idx_user_name", columnList = "name"),
+    @Index(name = "idx_user_email", unique = true, columnList = "email")})
+public record User(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         Integer id,
@@ -31,15 +30,15 @@ public record Session(
         @Column(unique = true, nullable = false)
         UUID uuid,
         @Column(nullable = false)
-        UUID application,
-        Instant loggedInAt,
-        Instant loggedOutAt,
+        byte[] publicKey,
         @Column(nullable = false)
-        byte[] challenge,
-        @ManyToOne
-        @JoinColumn(
-                name = "user_id",
-                foreignKey = @ForeignKey(name = "fk_session_user"))
-        User user) {
+        String name,
+        @Column(unique = true, nullable = false)
+        String email,
+        @Column(nullable = false)
+        UUID provider,
+        int nonce,
+        @OneToMany(mappedBy = "user")
+        List<Session> sessions) {
 
 }

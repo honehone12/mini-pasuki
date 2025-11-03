@@ -1,4 +1,4 @@
-package mini.pasuki;
+package com.mini.pasuki.models;
 
 import java.time.Instant;
 
