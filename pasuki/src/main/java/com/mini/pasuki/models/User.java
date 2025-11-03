@@ -41,4 +41,7 @@ public record User(
         @OneToMany(mappedBy = "user")
         List<Session> sessions) {
 
+    public static User fromUuid(UUID uuid) {
+        return new User(null, null, uuid, null, null, null, null, 0, null);
+    }
 }
