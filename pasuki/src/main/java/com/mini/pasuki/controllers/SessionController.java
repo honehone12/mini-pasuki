@@ -54,6 +54,12 @@ public class SessionController {
             String challenge) {
     }
 
+    public record VerifyRequest() {
+    }
+
+    public record VerifyResponse() {
+    }
+
     @Async
     @PostMapping(value = "/claim", consumes = "application/json")
     public CompletableFuture<ClaimResponse> claim(@Valid @RequestBody ClaimRequest req)
@@ -77,4 +83,5 @@ public class SessionController {
             throw new InternalServerException();
         }
     }
+
 }
