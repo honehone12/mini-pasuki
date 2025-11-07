@@ -42,14 +42,6 @@ public class UserController {
         _thisProvider = thisProvider;
     }
 
-    public record NonceRequest(@NonNull UUID uuid) {
-
-    }
-
-    public record NonceResponse(int nonce) {
-
-    }
-
     public record ClaimRequest(
             @NonNull String publicKey,
             @NonNull String name,
@@ -57,7 +49,18 @@ public class UserController {
             @NonNull UUID application) {
     }
 
-    public record ClaimResponse(String challenge) {
+    public record ClaimResponse(
+            UUID uuid,
+            UUID session,
+            String challenge) {
+    }
+
+    public record NonceRequest(@NonNull UUID uuid) {
+
+    }
+
+    public record NonceResponse(int nonce) {
+
     }
 
     @Async
@@ -90,9 +93,11 @@ public class UserController {
             _userRepository.save(newUser);
 
             final var challenge = Base64.getEncoder().encodeToString(random);
-            final var res = new ClaimResponse(challenge);
+            final var res = new ClaimResponse(
+                    newUser.uuid(),
+                    newSession.uuid(),
+                    challenge);
             return CompletableFuture.completedFuture(res);
-
         } catch (BadRequestException e) {
             throw e;
         } catch (Exception e) {
