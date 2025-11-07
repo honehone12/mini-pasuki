@@ -25,6 +25,9 @@ dependencies {
 	
 	// https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
 	implementation 'org.bouncycastle:bcprov-jdk18on:1.82'
+
+	// https://mvnrepository.com/artifact/tools.jackson.dataformat/jackson-dataformat-cbor
+	implementation 'tools.jackson.dataformat:jackson-dataformat-cbor:3.0.1'
 	
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	
