@@ -1,6 +1,5 @@
 package com.mini.pasuki.models;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +31,7 @@ public class User {
     private Instants instants;
     @Column(unique = true, nullable = false)
     private UUID uuid;
+    @Column(nullable = false)
     @Size(min = 32, max = 32)
     private byte[] publicKey;
     @Column(nullable = false)
@@ -52,7 +52,7 @@ public class User {
         this.name = name;
         this.email = email;
         this.provider = provider;
-        this.sessions = new ArrayList<Session>();
+        this.nonce = 0;
     }
 
     public Integer getId() {

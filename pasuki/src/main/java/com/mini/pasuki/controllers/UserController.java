@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mini.pasuki.errors.BadRequestException;
+import com.mini.pasuki.errors.Errors;
 import com.mini.pasuki.errors.InternalServerException;
 import com.mini.pasuki.models.Session;
 import com.mini.pasuki.models.User;
@@ -108,8 +109,8 @@ public class UserController {
                     req.application(),
                     random,
                     newUser);
-            newUser.getSessions().add(newSession);
             _userRepository.save(newUser);
+            _sessionRepository.save(newSession);
 
             final var challenge = Base64.getEncoder().encodeToString(random);
             final var res = new ClaimResponse(
@@ -133,7 +134,7 @@ public class UserController {
         try {
             final var session = _sessionRepository.findByUserUuidAndUuid(
                     req.uuid(),
-                    req.session());
+                    req.session()).orElseThrow(Errors.BadRequest);
             final var user = session.getUser();
             final var signature = Base64.getDecoder().decode(req.signature());
 
@@ -175,11 +176,14 @@ public class UserController {
     @Async
     @PostMapping(value = "/nonce", consumes = "application/json")
     public CompletableFuture<NonceResponse> nonce(@Valid @RequestBody NonceRequest req)
-            throws InternalServerException {
+            throws InternalServerException, BadRequestException {
         try {
-            final var user = _userRepository.findByUuid(req.uuid());
+            final var user = _userRepository.findByUuid(req.uuid())
+                    .orElseThrow(Errors.BadRequest);
             final var res = new NonceResponse(user.getNonce());
             return CompletableFuture.completedFuture(res);
+        } catch (BadRequestException e) {
+            throw e;
         } catch (Exception e) {
             _log.error(e.toString());
             throw new InternalServerException();
