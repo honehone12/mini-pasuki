@@ -77,11 +77,9 @@ public class UserController {
     }
 
     public record NonceRequest(@NonNull UUID uuid) {
-
     }
 
     public record NonceResponse(int nonce) {
-
     }
 
     @Async
