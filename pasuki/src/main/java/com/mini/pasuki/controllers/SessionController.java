@@ -1,7 +1,7 @@
 package com.mini.pasuki.controllers;
 
+import java.time.Instant;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,27 +22,28 @@ import com.mini.pasuki.errors.InternalServerException;
 import com.mini.pasuki.models.Session;
 import com.mini.pasuki.repositories.SessionRepository;
 import com.mini.pasuki.repositories.UserRepository;
+import com.mini.pasuki.services.ProviderService;
 
 import jakarta.validation.Valid;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.dataformat.cbor.CBORMapper;
 
 @RestController
 @RequestMapping("/session")
 public class SessionController {
     private final Logger _log = LoggerFactory.getLogger(this.getClass());
-    private final ObjectMapper _cbor = new CBORMapper();
     private final SecureRandom _rand;
     private final UserRepository _userRepository;
     private final SessionRepository _sessionRepository;
+    private final ProviderService _providerService;
 
     public SessionController(
             SecureRandom rand,
             UserRepository userRepository,
-            SessionRepository sessionRepository) {
+            SessionRepository sessionRepository,
+            ProviderService providerService) {
         _rand = rand;
         _userRepository = userRepository;
         _sessionRepository = sessionRepository;
+        _providerService = providerService;
     }
 
     public record ClaimRequest(
@@ -54,13 +56,16 @@ public class SessionController {
             String challenge) {
     }
 
-    public record VerifyRequest() {
+    public record VerifyRequest(
+            @NonNull UUID uuid,
+            @NonNull String signature) {
     }
 
-    public record VerifyResponse() {
+    public record VerifyResponse(Instant loggedInAt) {
     }
 
     @Async
+    @Transactional(rollbackFor = Exception.class)
     @PostMapping(value = "/claim", consumes = "application/json")
     public CompletableFuture<ClaimResponse> claim(@Valid @RequestBody ClaimRequest req)
             throws BadRequestException, InternalServerException {
@@ -75,6 +80,40 @@ public class SessionController {
 
             final var challenge = Base64.getEncoder().encodeToString(random);
             final var res = new ClaimResponse(newSession.getUuid(), challenge);
+            return CompletableFuture.completedFuture(res);
+        } catch (BadRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            _log.warn(e.toString());
+            throw new InternalServerException();
+        }
+    }
+
+    @Async
+    @Transactional(rollbackFor = Exception.class)
+    @PostMapping(value = "/verify", consumes = "application/json")
+    public CompletableFuture<VerifyResponse> verify(@Valid @RequestBody VerifyRequest req)
+            throws BadRequestException, InternalServerException {
+        try {
+            final var session = _sessionRepository.findByUuid(req.uuid())
+                    .orElseThrow(Errors.BadRequest);
+            final var user = session.getUser();
+
+            if (!_providerService.verifySignature(
+                    user,
+                    session,
+                    req.signature())) {
+                throw new BadRequestException();
+            }
+
+            user.incrementNonce();
+            _userRepository.save(user);
+
+            final var now = Instant.now();
+            session.setLoggedInAt(now);
+            _sessionRepository.save(session);
+
+            final var res = new VerifyResponse(now);
             return CompletableFuture.completedFuture(res);
         } catch (BadRequestException e) {
             throw e;

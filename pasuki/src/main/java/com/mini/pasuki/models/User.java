@@ -115,6 +115,10 @@ public class User {
         return nonce;
     }
 
+    public void incrementNonce() {
+        this.nonce++;
+    }
+
     public void setNonce(Integer nonce) {
         this.nonce = nonce;
     }

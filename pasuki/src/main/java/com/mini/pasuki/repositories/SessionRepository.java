@@ -10,5 +10,5 @@ import com.mini.pasuki.models.Session;
 
 public interface SessionRepository extends JpaRepository<Session, Integer> {
     @EntityGraph(attributePaths = { "user" })
-    Optional<Session> findByUserUuidAndUuid(UUID userUuid, UUID uuid);
+    Optional<Session> findByUuid(UUID uuid);
 }

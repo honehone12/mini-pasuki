@@ -8,4 +8,6 @@ public interface SessionEssentials {
     UUID getUuid();
 
     byte[] getChallenge();
+
+    User getUser();
 }
