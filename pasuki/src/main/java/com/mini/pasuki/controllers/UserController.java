@@ -73,7 +73,7 @@ public class UserController {
     public CompletableFuture<ClaimResponse> claim(@Valid @RequestBody ClaimRequest req)
             throws BadRequestException, InternalServerException {
         try {
-            if (req.publicKey().length() != 43) {
+            if (req.publicKey().length() != 44) {
                 throw new BadRequestException();
             }
             final var pubKey = Base64.getDecoder().decode(req.publicKey());
