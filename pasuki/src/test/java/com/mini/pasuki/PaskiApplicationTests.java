@@ -33,7 +33,7 @@ class PaskiApplicationTests {
     @SuppressWarnings("null")
     @Test
     void apiTest() throws URISyntaxException, InterruptedException,
-            ExecutionException, NoSuchAlgorithmException {
+            ExecutionException, NoSuchAlgorithmException, RuntimeException {
         final var json = new JsonMapper();
         final var cbor = new CBORMapper();
 
@@ -70,6 +70,9 @@ class PaskiApplicationTests {
                     .build();
             final var fut = httpClient.sendAsync(req, BodyHandlers.ofByteArray());
             final var res = fut.get();
+            if (res.statusCode() != 200) {
+                throw new RuntimeException(String.format("status not ok: %d", res.statusCode()));
+            }
             final var claimed = json.readValue(res.body(), UserController.ClaimResponse.class);
             user = claimed.uuid();
             session = claimed.session();
@@ -101,6 +104,9 @@ class PaskiApplicationTests {
                     .build();
             final var fut = httpClient.sendAsync(req, BodyHandlers.ofByteArray());
             final var res = fut.get();
+            if (res.statusCode() != 200) {
+                throw new RuntimeException(String.format("status not ok: %d", res.statusCode()));
+            }
             final var verified = json.readValue(res.body(), SessionController.VerifyResponse.class);
             System.out.println(verified.loggedInAt());
             signer.reset();
@@ -116,6 +122,9 @@ class PaskiApplicationTests {
                     .build();
             final var fut = httpClient.sendAsync(req, BodyHandlers.ofByteArray());
             final var res = fut.get();
+            if (res.statusCode() != 200) {
+                throw new RuntimeException(String.format("status not ok: %d", res.statusCode()));
+            }
             final var claimed = json.readValue(res.body(), SessionController.ClaimResponse.class);
             session = claimed.uuid();
             challenge = Base64.getDecoder().decode(claimed.challenge());
@@ -131,9 +140,11 @@ class PaskiApplicationTests {
                     .build();
             final var fut = httpClient.sendAsync(req, BodyHandlers.ofByteArray());
             final var res = fut.get();
+            if (res.statusCode() != 200) {
+                throw new RuntimeException(String.format("status not ok: %d", res.statusCode()));
+            }
             final var claimed = json.readValue(res.body(), UserController.NonceResponse.class);
             nonce = claimed.nonce();
-            System.out.printf("nonce %d", nonce);
         }
 
         {
@@ -160,6 +171,9 @@ class PaskiApplicationTests {
                     .build();
             final var fut = httpClient.sendAsync(req, BodyHandlers.ofByteArray());
             final var res = fut.get();
+            if (res.statusCode() != 200) {
+                throw new RuntimeException(String.format("status not ok: %d", res.statusCode()));
+            }
             final var verified = json.readValue(res.body(), SessionController.VerifyResponse.class);
             System.out.println(verified.loggedInAt());
             signer.reset();
