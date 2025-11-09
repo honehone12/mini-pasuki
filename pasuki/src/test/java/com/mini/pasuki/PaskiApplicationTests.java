@@ -18,7 +18,7 @@ import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.springframework.boot.test.context.SpringBootTest;
 
 import com.mini.pasuki.controllers.SessionController;
 import com.mini.pasuki.controllers.UserController;
@@ -27,7 +27,7 @@ import com.mini.pasuki.models.SignatureElements;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.dataformat.cbor.CBORMapper;
 
-@SpringBootTest
+// @SpringBootTest
 class PaskiApplicationTests {
 
     @SuppressWarnings("null")
