@@ -31,7 +31,7 @@ public class User {
     private Instants instants;
     @Column(unique = true, nullable = false)
     private UUID uuid;
-    @Column(nullable = false)
+    @Column(columnDefinition = "BINARY(32)", length = 32, nullable = false)
     @Size(min = 32, max = 32)
     private byte[] publicKey;
     @Column(nullable = false)

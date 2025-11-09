@@ -36,7 +36,7 @@ public class Session {
     private UUID application;
     private Instant loggedInAt;
     private Instant loggedOutAt;
-    @Column(nullable = false)
+    @Column(columnDefinition = "BINARY(32)", length = 32, nullable = false)
     @Size(min = 32, max = 32)
     private byte[] challenge;
     @ManyToOne
