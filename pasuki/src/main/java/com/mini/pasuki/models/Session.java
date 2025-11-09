@@ -5,10 +5,12 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
+// import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,16 +22,17 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @SQLRestriction("deleted_at IS NULL")
 @Table(indexes = {
         @Index(name = "idx_session_uuid", unique = true, columnList = "uuid")
 })
-public class Session {
+public class Session extends Model {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Embedded
-    private Instants instants;
+    // @Embedded
+    // private Model model;
     @Column(unique = true, nullable = false)
     private UUID uuid;
     @Column(nullable = false)
@@ -42,6 +45,9 @@ public class Session {
     @ManyToOne
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_session_user"))
     private User user;
+
+    public Session() {
+    }
 
     public Session(UUID application, byte[] challenge, User user) {
         final var uuid = UUID.randomUUID();
@@ -57,14 +63,6 @@ public class Session {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Instants getInstants() {
-        return instants;
-    }
-
-    public void setInstants(Instants instants) {
-        this.instants = instants;
     }
 
     public UUID getUuid() {
@@ -117,9 +115,8 @@ public class Session {
 
     @Override
     public String toString() {
-        return "Session [id=" + id + ", instants=" + instants + ", uuid=" + uuid + ", application=" + application
-                + ", loggedInAt=" + loggedInAt + ", loggedOutAt=" + loggedOutAt + ", challenge="
-                + Arrays.toString(challenge) + ", user=" + user + "]";
+        return "Session [id=" + id + ", uuid=" + uuid + ", application=" + application + ", loggedInAt=" + loggedInAt
+                + ", loggedOutAt=" + loggedOutAt + ", challenge=" + Arrays.toString(challenge) + ", user=" + user + "]";
     }
 
     @Override
@@ -127,7 +124,6 @@ public class Session {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((instants == null) ? 0 : instants.hashCode());
         result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
         result = prime * result + ((application == null) ? 0 : application.hashCode());
         result = prime * result + ((loggedInAt == null) ? 0 : loggedInAt.hashCode());
@@ -150,11 +146,6 @@ public class Session {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
-            return false;
-        if (instants == null) {
-            if (other.instants != null)
-                return false;
-        } else if (!instants.equals(other.instants))
             return false;
         if (uuid == null) {
             if (other.uuid != null)

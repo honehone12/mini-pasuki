@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
+// import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,17 +20,18 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @SQLRestriction("deleted_at IS NULL")
 @Table(indexes = {
         @Index(name = "idx_user_uuid", unique = true, columnList = "uuid"),
         @Index(name = "idx_user_name", columnList = "name"),
         @Index(name = "idx_user_email", unique = true, columnList = "email") })
-public class User {
+public class User extends Model {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Embedded
-    private Instants instants;
+    // @Embedded
+    // private Model model;
     @Column(unique = true, nullable = false)
     private UUID uuid;
     @Column(columnDefinition = "BINARY(32)", length = 32, nullable = false)
@@ -44,6 +47,9 @@ public class User {
     private Integer nonce;
     @OneToMany(mappedBy = "user")
     private List<Session> sessions;
+
+    public User() {
+    }
 
     public User(byte[] publicKey, String name, String email, UUID provider) {
         final var uuid = UUID.randomUUID();
@@ -61,14 +67,6 @@ public class User {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Instants getInstants() {
-        return instants;
-    }
-
-    public void setInstants(Instants instants) {
-        this.instants = instants;
     }
 
     public UUID getUuid() {
@@ -133,9 +131,8 @@ public class User {
 
     @Override
     public String toString() {
-        return "User [id=" + id + ", instants=" + instants + ", uuid=" + uuid + ", publicKey="
-                + Arrays.toString(publicKey) + ", name=" + name + ", email=" + email + ", provider=" + provider
-                + ", nonce=" + nonce + ", sessions=" + sessions + "]";
+        return "User [id=" + id + ", uuid=" + uuid + ", publicKey=" + Arrays.toString(publicKey) + ", name=" + name
+                + ", email=" + email + ", provider=" + provider + ", nonce=" + nonce + ", sessions=" + sessions + "]";
     }
 
     @Override
@@ -143,7 +140,6 @@ public class User {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((instants == null) ? 0 : instants.hashCode());
         result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
         result = prime * result + Arrays.hashCode(publicKey);
         result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -167,11 +163,6 @@ public class User {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
-            return false;
-        if (instants == null) {
-            if (other.instants != null)
-                return false;
-        } else if (!instants.equals(other.instants))
             return false;
         if (uuid == null) {
             if (other.uuid != null)
