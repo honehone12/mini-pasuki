@@ -83,7 +83,7 @@ public class UserController {
 
             final var random = new byte[32];
             _rand.nextBytes(random);
-            final var provider = _providerService.ProviderUuid();
+            final var provider = _providerService.providerUuid();
 
             final var newUser = new User(
                     pubKey,

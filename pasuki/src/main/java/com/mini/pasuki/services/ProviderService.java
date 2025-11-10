@@ -26,7 +26,11 @@ public class ProviderService {
         _prividerUuid = UUID.fromString(uuid);
     }
 
-    public UUID ProviderUuid() {
+    public UUID providerUuid() throws RuntimeException {
+        if (_prividerUuid == null) {
+            throw new RuntimeException("could not find provider id");
+        }
+
         return _prividerUuid;
     }
 
